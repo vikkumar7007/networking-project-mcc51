@@ -1,0 +1,121 @@
+# VLAN-Based Enterprise Network with OSPF, DHCP & Wireless WFH Access
+
+## 📖 Project Overview
+This project demonstrates a real-world **enterprise network architecture** implemented using **Cisco Packet Tracer**. The network connects two geographically separated enterprise sites (**Delhi and Mumbai**) using a **WAN serial link** and integrates **VLAN segmentation, inter-VLAN routing, OSPF dynamic routing, DHCP services**, and a **SOHO home router with wireless access** to simulate a **Work From Home (WFH)** user.
+
+---
+
+## 🏗️ Network Architecture
+
+### 🔹 Delhi Enterprise Site
+- VLAN 10 → `192.168.0.0/24`
+- VLAN 20 → `172.16.0.0/24`
+- Inter-VLAN routing using **Router-on-a-Stick**
+- DHCP pools configured on Delhi router
+- Trunk link between switch and router
+
+### 🔹 WAN Connectivity
+- Serial Point-to-Point WAN link
+- Network: `10.0.0.0/30`
+- Delhi Router: `10.0.0.1`
+- Mumbai Router: `10.0.0.2`
+- Dynamic routing using **OSPF (Single Area)**
+
+### 🔹 Mumbai Enterprise Site
+- Enterprise router running OSPF
+- DHCP pool configured
+- Interface connected to home router:
+  - IP Address: `150.0.0.1`
+
+### 🔹 Home Router (SOHO)
+- WAN IP obtained dynamically via DHCP from Mumbai router
+- NAT enabled
+- Acts as gateway for wireless clients
+
+### 🔹 Wireless Client
+- Laptop connected via Wi-Fi to home router
+- IP assigned automatically via DHCP
+- Represents a remote Work From Home user
+
+---
+
+## 🔁 Traffic Flow (End-to-End)
+1. Wireless Laptop → Home Router (Wi-Fi)
+2. Home Router performs NAT
+3. Home Router → Mumbai Router (`150.0.0.1`)
+4. Mumbai Router → Delhi Router (OSPF over WAN)
+5. Delhi Router → VLAN 10 / VLAN 20 network
+
+---
+
+## ⚙️ Technologies & Protocols Used
+- VLAN (802.1Q)
+- Inter-VLAN Routing
+- OSPF (Open Shortest Path First)
+- DHCP Server & Client
+- WAN Serial Communication
+- NAT
+- Wireless LAN
+- IP Addressing & Subnetting
+- Cisco Packet Tracer
+
+---
+
+## 🧪 CLI Configuration (Sample Commands)
+
+### 🔹 VLAN Configuration (Switch)
+```bash
+vlan 10
+ name SALES
+vlan 20
+ name HR
+
+
+🔹 Trunk Port Configuration
+
+interface fa0/1
+ switchport mode trunk
+
+🔹 Inter-VLAN Routing (Delhi Router)
+
+interface g0/0.10
+ encapsulation dot1Q 10
+ ip address 192.168.0.1 255.255.255.0
+
+interface g0/0.20
+ encapsulation dot1Q 20
+ ip address 172.16.0.1 255.255.255.0
+
+🔹 DHCP Configuration (Delhi Router)
+
+ip dhcp pool VLAN10
+ network 192.168.0.0 255.255.255.0
+ default-router 192.168.0.1
+ dns-server 8.8.8.8
+
+ip dhcp pool VLAN20
+ network 172.16.0.0 255.255.255.0
+ default-router 172.16.0.1
+ dns-server 8.8.8.8
+
+🔹 WAN Serial Configuration
+
+interface s0/0/0
+ ip address 10.0.0.1 255.255.255.252
+ clock rate 64000
+ no shutdown
+
+🔹 OSPF Configuration (Both Enterprise Routers)
+
+router ospf 1
+ network 192.168.0.0 0.0.0.255 area 0
+ network 172.16.0.0 0.0.0.255 area 0
+ network 10.0.0.0 0.0.0.3 area 0
+ network 150.0.0.0 0.0.0.255 area 0
+
+🔹 Mumbai Router DHCP (For Home Router)
+
+ip dhcp pool HOME_ROUTER
+ network 150.0.0.0 255.255.255.0
+ default-router 150.0.0.1
+
